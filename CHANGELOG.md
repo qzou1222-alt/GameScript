@@ -40,4 +40,4 @@ Initial release.
 
 ## Releases
 
-- [1.0.0](https://github.com/qzou1222-alt/GameScript/blob/1.0.0/CHANGELOG.md)
+- [1.0.0](https://github.com/qzou1222-alt/GameScript/blob/v1.0.0/CHANGELOG.md)
