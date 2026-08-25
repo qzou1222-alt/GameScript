@@ -1,0 +1,71 @@
+{
+  "name": "gamescript",
+  "displayName": "GameScript Extension for VS Code",
+  "description": "Language support for GameScript (.gs) in Visual Studio Code.",
+  "version": "1.0.0",
+  "publisher": "VictorZou",
+  "author": {
+    "name": "Victor Zou"
+  },
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "commands": [
+        {
+            "command": "gamescript.run",
+            "title": "Run GameScript"
+        }
+    ],
+    "menus": {
+        "editor/title": [
+            {
+                "command": "gamescript.run",
+                "when": "editorLangId == gs || editorLangId == gamescript",
+                "group": "2_run@1"
+            }
+        ]
+    },   
+
+    "languages": [{
+      "id": "gamescript",
+      "aliases": ["GameScript", "gamescript"],
+      "extensions": [".gs",".gamescript"],
+      "configuration": "./language-configuration.json",
+      "icon": {"dark": "icons/gs.png","light": "icons/lightgs.png"}
+    }],
+    "grammars": [
+      {
+        "language": "gamescript",
+        "scopeName": "source.gamescript",
+        "path": "./syntaxes/gamescript.tmLanguage.json"
+      }
+      
+    ],
+    "configurationDefaults": {
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "keyword.directive.doc.gamescript",
+            "settings": {
+              "foreground": "#57ffe3"
+            }
+          },
+          {
+            "scope":"keyword.directive.annotation.gamescript",
+            "settings": {
+              "foreground": "#ffa857"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "*"
+]
+}

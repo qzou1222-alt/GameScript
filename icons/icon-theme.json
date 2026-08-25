@@ -1,0 +1,11 @@
+{
+  "iconDefinitions": {
+    "_gs": {
+      "iconPath": "./gs.png"
+    }
+  },
+  "fileExtensions": {
+    "gs": "_gs",
+    "gamescript": "_gs"
+  }
+}
