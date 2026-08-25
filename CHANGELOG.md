@@ -8,36 +8,45 @@ For each release, the changelog describes what was added, changed, fixed, or rem
 
 At the end of this file, the release history is provided with links to previous releases.
 
-## 1.0.0 - 2026-08-24
+## 1.1.0 - 2026-08-25
 
-Initial release.
+InOutPut Update
 
 ### Runtime
 
-- Added print().
-- Added printerr().
-- Added printwarn().
-- Added versinfo().
-
-### Parser
-
-- Added #DOC# support.
-- Added bracket validation.
-- Added argument parsing.
+- Added printinfo().
+- Added input().
+- Added variable support.
+- versinfo() now displays its first line as information instead of normal text.
+- print(), printinfo(), printwarn(), printerr(), printbash() refactored.
 
 ### Editor
 
-- Added VS Code completion.
-- Added syntax highlighting.
-- Added the Run command.
+- Removed unimplemented syntax highlighting.
+- Added highlight for printinfo().
+- Added highlight for input().
+- Added hover information for print().
+- Added hover information for printwarn().
+- Added hover information for printerr().
+- Added hover information for printinfo().
+- Added hover information for printbash().
+- Added hover information for versinfo().
+- Added hover information for input().
 
-### Diagnostics
+## Diagnostics
 
-- Added unexpected bracket errors.
-- Added unclosed bracket errors.
-- Added syntax error locations.
-- Added #DOC# information.
+- Removed Unimplemented syntax diagnostics.
+
+### Parser
+
+- Added evaluate.
+- Added assignment finder.
+
+### File
+
+- File will be automatically saved when program start running.
 
 ## Releases
 
+- [1.1.0](https://github.com/qzou1222-alt/GameScript/blob/v1.1.0/CHANGELOG.md)
 - [1.0.0](https://github.com/qzou1222-alt/GameScript/blob/v1.0.0/CHANGELOG.md)

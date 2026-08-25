@@ -1,70 +1,112 @@
 import sys
-
 from core import *
-
-ind=0
+variables = {}
+ind = 0
+functions = {
+    "print": print,
+    "printerr": printerr,
+    "printwarn": printwarn,
+    "printinfo": printinfo,
+    "printbash": printbash,
+    "versinfo": versinfo,
+    "input": input,
+}
+def find_assignment(line):
+    in_string = False
+    depth = 0
+    for i, ch in enumerate(line):
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "=" and depth == 0:
+            return i
+    return -1
 def split_args(content):
     parts = []
     current = ""
     in_string = False
-
+    depth = 0
     for ch in content:
         if ch == '"':
             in_string = not in_string
-
-        if ch == "," and not in_string:
-            parts.append(current)
+        if not in_string:
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+        if ch == "," and not in_string and depth == 0:
+            parts.append(current.strip())
             current = ""
         else:
             current += ch
-
-    parts.append(current)
-
+    if current.strip():
+        parts.append(current.strip())
     return parts
 def parse_args(content):
     parts = split_args(content)
-
     values = []
     kwargs = {}
-
     for part in parts:
         part = part.strip()
-
-        if "=" in part:
-            name, value = part.split("=", 1)
-
-            name = name.strip()
-            value = value.strip()
-
-            if (
-                len(value) >= 2
-                and value[0] == '"'
-                and value[-1] == '"'
-            ):
-                value = value[1:-1]
-
-            kwargs[name] = value
-
+        assignment = find_assignment(part)
+        if assignment != -1:
+            name = part[:assignment].strip()
+            value = part[assignment + 1:].strip()
+            kwargs[name] = evaluate(value)
         else:
-            if (
-                len(part) >= 2
-                and part[0] == '"'
-                and part[-1] == '"'
-            ):
-                part = part[1:-1]
-
-            values.append(part)
-
+            values.append(evaluate(part))
     return values, kwargs
+def evaluate(expression):
+    expression = expression.strip()
+    if expression == "":
+        return None
+    # String
+    if (
+        len(expression) >= 2
+        and expression[0] == '"'
+        and expression[-1] == '"'
+    ):
+        return expression[1:-1]
+    # Variable
+    if expression in variables:
+        return variables[expression]
+    # Built-in function call
+    if expression.endswith(")"):
+        open_index = expression.find("(")
+        if open_index != -1:
+            name = expression[:open_index].strip()
+            # Make sure this really looks like a function call
+            if name in functions:
+                content = expression[
+                    open_index + 1:-1
+                ]
+                values, kwargs = parse_args(content)
+                function = functions[name]
+                try:
+                    return function(
+                        *values,
+                        **kwargs
+                    )
+                except TypeError as error:
+                    printerr(
+                        f"Type Error: {error}",
+                        fatal=True
+                    )
+    # Unknown expression
+    return expression
 def checkBrackets(line):
     stack = []
-
     pairs = {
         ")": "(",
         "]": "[",
         "}": "{"
     }
-
     opens = ["(", "[", "{"]
 
     for j in range(len(line)):
@@ -75,92 +117,102 @@ def checkBrackets(line):
 
         elif ch in pairs:
             if not stack:
-                return j, f"Bracket Error: Unexpected bracket \"{ch}\""
+                return (
+                    j,
+                    f'Bracket Error: Unexpected bracket "{ch}"'
+                )
 
             last, pos = stack.pop()
 
             if last != pairs[ch]:
-                return j, f"Bracket Error: Expected \"{pairs[ch]}\" for \"{ch}\""
+                return (
+                    j,
+                    f'Bracket Error: Expected "{pairs[ch]}" '
+                    f'for "{ch}"'
+                )
 
     if stack:
         ch, pos = stack[-1]
-        return len(line), f"Bracket Error: Unclosed bracket \"{ch}\""
+
+        return (
+            len(line),
+            f'Bracket Error: Unclosed bracket "{ch}"'
+        )
 
     return None
 
-def execute_line(line:str):
+
+def execute_line(line: str):
     global ind
-    ind+=1
-    line=line.rstrip()
-    if line.startswith(("#")):
+
+    ind += 1
+
+    line = line.rstrip()
+
+    if not line.strip():
         return
+
+    if line.lstrip().startswith("#"):
+        return
+
     error = checkBrackets(line)
 
     if error:
         pos, message = error
 
         printerr(
-            f'{message}\n '
-            f'in [line {ind}]\n '
-            f'{line}\n '
-            f'{" " * pos}^',
+            f'{message}\n'
+            f' in [line {ind}]\n'
+            f' {line}\n'
+            f' {" " * pos}^',
             fatal=True
         )
 
-    if line.startswith("print("):
-        if not line.endswith(")"):
-            printerr(f"Syntax Error: Expected new line, found {line[line.find(")")+1:]} instead. \n in [line {ind}] \n {line} \n {" "*line.find(")")+"^"*(len(line)-line.find(")"))}",fatal=True)
-        content = line[6:-1].strip()
-    
-        values, kwargs = parse_args(content)
-    
-        print(
-            *values,
-            printtype=kwargs.get("printtype", "message")
-        )
-    if line.startswith("printerr("):
-        if not line.endswith(")"):
-            printerr(f"Syntax Error: Expected new line, found {line[line.find(")")+1:]} instead. \n in [line {ind}] \n {line} \n {" "*line.find(")")+"^"*(len(line)-line.find(")"))}",fatal=True)
-        content = line[9:-1].strip()
-    
-        values, kwargs = parse_args(content)
-    
-        printerr(
-            " ".join(map(str, values)),
-            fatal=kwargs.get("fatal", "false") == "true"
-        )
-    if line.startswith("printwarn("):
-        if not line.endswith(")"):
-            printerr(f"Syntax Error: Expected new line, found {line[line.find(")")+1:]} instead. \n in [line {ind}] \n {line} \n {" "*line.find(")")+"^"*(len(line)-line.find(")"))}",fatal=True)
-        content = line[10:-1].strip()
-    
-        values, kwargs = parse_args(content)
-    
-        printwarn(
-            " ".join(map(str, values)),
-            fatal=kwargs.get("fatal", "false") == "true"
-        )
-    if line.startswith("versinfo("):
-        if not line.endswith(")"):
-            printerr(f"Syntax Error: Expected new line, found {line[line.find(")")+1:]} instead. \n in [line {ind}] \n {line} \n {" "*line.find(")")+"^"*(len(line)-line.find(")"))}",fatal=True)
-        content = line[9:-1].strip()
-    
-        if content:
-            printerr(f"Type Error: versinfo() does not support arguments. \n in [line {ind} \n {" "*10+"^"*(len(line)-line.find(")"))}]")
-        versinfo()
+    # Assignment
+    assignment = find_assignment(line)
+
+    if assignment != -1:
+        name = line[:assignment].strip()
+        value = line[assignment + 1:].strip()
+
+        if not name:
+            printerr(
+                f"Syntax Error: Expected variable name.\n"
+                f" in [line {ind}]\n"
+                f" {line}",
+                fatal=True
+            )
+
+        variables[name] = evaluate(value)
+
+        return
+
+    # Normal expression / builtin call
+    evaluate(line)
+
+
 def main():
     if len(sys.argv) < 2:
-        printerr("Error: No GameScript file specified.")
-        raise SystemExit(1)
+        printerr(
+            "Error: No GameScript file specified.",
+            fatal=True
+        )
 
     filename = sys.argv[1]
 
     try:
-        with open(filename, "r", encoding="utf-8") as file:
+        with open(
+            filename,
+            "r",
+            encoding="utf-8"
+        ) as file:
             lines = file.read().splitlines()
+
     except FileNotFoundError:
-        printerr(f'GameScript file "{filename}" does not exist.')
-        raise SystemExit(1)
+        printerr(
+            f'GameScript file "{filename}" does not exist.',
+            fatal=True
+        )
 
     for line in lines:
         execute_line(line)
@@ -168,5 +220,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

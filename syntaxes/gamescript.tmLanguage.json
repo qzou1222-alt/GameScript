@@ -17,49 +17,12 @@
     				"match": "\\b[0-9][0-9_]*(\\.[0-9][0-9_]*)?\\b"
 				},
 				{
-					"name": "keyword.control.gamescript",
-					"match": "\\b(if|while|for|return|inherit)\\b"
-				},
-				{
-					"match": "\\b(def)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(\\()",
-					"captures": {
-						"1": {
-							"name": "keyword"
-						},
-						"2": {
-							"name": "entity.name.function.gamescript"
-						},
-						"3": {
-							"name": "punctuation.section.parens.begin.gamescript"
-						}
-					}
-				},
-				{
-      				"name": "keyword.directive.annotation.gamescript",
-      				"match": "@\\w+"
-    			},
-				{
-					"match": "\\b(script_name)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
-					"captures": {
-						"1": {
-							"name": "keyword"
-							},
-						"2": {
-							"name": "entity.name.type.gamescript"
-					}
-					}
-				},
-				{
-					"name":"keyword",
-					"match": "\\b(def|true|false|none|script_name)\\b"
-				},
-				{
-					"name":"entity.name.class",
-					"match":"\\b(Object|MainScript|Integer|Float|String|Boolean|Class)\\b"
+					"name": "keyword.gamescript",
+					"match": "\\b(true|false|none)\\b"
 				},
 				{
 					"name": "entity.name.function.gamescript",
-					"match": "\\b(print|printbash|printerr|printwarn|versinfo)\\b"
+					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input)\\b"
 				},
 				{
       				"name": "keyword.directive.doc.gamescript",

@@ -1,27 +1,27 @@
 const vscode = require('vscode');
 const path = require("path");
-const cp = require("child_process");
-const builtin_classes = [
-    "Object",
-    "String",
-    "Integer",
-    "Float",
-    "Boolean",
-    "Class",
-    "MainScript"
-];
-const global_keyword_name = [
-    "inherit",
-    "script_name",
-    "true",
-    "false",
-    "none",
-    "if",
-    "for",
-    "while",
-    "def"
-];
-let user_functions = []
+//const cp = require("child_process");
+//const builtin_classes = [
+//    "Object",
+//    "String",
+//    "Integer",
+//    "Float",
+//    "Boolean",
+//    "Class",
+//    "MainScript"
+//];
+//const global_keyword_name = [
+//    "inherit",
+//    "script_name",
+//    "true",
+//    "false",
+//    "none",
+//    "if",
+//    "for",
+//    "while",
+//    "def"
+//];
+//let user_functions = []
 function getIndent(line) {
     return line.search(/\S|$/);
 }
@@ -30,14 +30,16 @@ function activate(context) {
     const runCommand =
         vscode.commands.registerCommand(
             "gamescript.run",
-            () => {
+            async () => {
                 const editor =
                     vscode.window.activeTextEditor;
             
                 if (!editor) {
                     return;
                 }
-            
+                await vscode.commands.executeCommand(
+                    "workbench.action.files.save"
+                );            
                 const file =
                     editor.document.fileName;
                 const runner =
@@ -58,7 +60,6 @@ function activate(context) {
                 );
             }
         );
-    
     context.subscriptions.push(runCommand);
     const collection =
         vscode.languages.createDiagnosticCollection("gamescript");
@@ -85,94 +86,52 @@ function activate(context) {
             ["gs", "gamescript"],
             new GSHoverProvider()
         );
-
     context.subscriptions.push(hoverProvider);
     context.subscriptions.push(provider);
 }
+
 class GSProvider {
     provideCompletionItems(document, position) {
         const items = [];
 
-        // Built-in keywords
-        for (const keyword of global_keyword_name) {
-            items.push(
-                new vscode.CompletionItem(
-                    keyword,
-                    vscode.CompletionItemKind.Keyword
-                )
-            );
-        }
-
-        // Built-in classes
-        for (const className of builtin_classes) {
-            items.push(
-                new vscode.CompletionItem(
-                    className,
-                    vscode.CompletionItemKind.Class
-                )
-            );
-        }
-
-        // User-defined names
-        const lines = document.getText().split("\n");
-
-        for (const line of lines) {
-            const trimmed = line.trim();
-
-            // class Player
-            if (trimmed.startsWith("class ")) {
-                const name = trimmed
-                    .slice("class ".length)
-                    .split(/\s+/)[0];
-
-                if (name) {
-                    items.push(
-                        new vscode.CompletionItem(
-                            name,
-                            vscode.CompletionItemKind.Class
-                        )
-                    );
-                }
-            }
-
-            // def attack(
-            else if (trimmed.startsWith("def ")) {
-                const name = trimmed
-                    .slice("def ".length)
-                    .split(/[\s(]/)[0];
-
-                if (name) {
-                    items.push(
-                        new vscode.CompletionItem(
-                            name,
-                            vscode.CompletionItemKind.Function
-                        )
-                    );
-                }
-            }
-
-            // script_name MyGame
-            else if (trimmed.startsWith("script_name ")) {
-                const name = trimmed
-                    .slice("script_name ".length)
-                    .split(/\s+/)[0];
-
-                if (name) {
-                    items.push(
-                        new vscode.CompletionItem(
-                            name,
-                            vscode.CompletionItemKind.Class
-                        )
-                    );
-                }
-            }
-        }
+        
         items.push(
             new vscode.CompletionItem(
                 "#DOC#",
                 vscode.CompletionItemKind.Struct
-            ))
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "print",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "printerr",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "printwarn",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "printbash",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "versinfo",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "printinfo",
+                vscode.CompletionItemKind.Function
+            ));
         return items;
+
     }
 }
 function checkGS(doc, collection) {
@@ -187,11 +146,11 @@ function checkGS(doc, collection) {
     const lines = doc.getText().split("\n");
     user_functions=[]
     // Classes known in this file.
-    const knownClasses = [...builtin_classes];
+    //const knownClasses = [...builtin_classes];
 
-    let script_name = null;
-    let inherit_class_name = null;
-    let is_module = false;
+    //let script_name = null;
+    //let inherit_class_name = null;
+    //let is_module = false;
 
     let definitionIndent = null;
 
@@ -209,10 +168,10 @@ function checkGS(doc, collection) {
         // @module
         // -------------------------
 
-        if (trimmed === "@module") {
-            is_module = true;
-            continue;
-        }
+        //if (trimmed === "@module") {
+        //    is_module = true;
+        //    continue;
+        //}
 
         // -------------------------
         // Comments
@@ -228,51 +187,51 @@ function checkGS(doc, collection) {
         // Definitions
         // -------------------------
 
-        if (
-            trimmed.startsWith("def ") ||
-            trimmed.startsWith("class ")
-        ) {
-            if (indent === 0) {
-                definitionIndent = indent;
-            }
-        }
+        //if (
+        //    trimmed.startsWith("def ") ||
+        //    trimmed.startsWith("class ")
+        //) {
+        //    if (indent === 0) {
+        //        definitionIndent = indent;
+        //    }
+        //}
 
-        if (
-            definitionIndent !== null &&
-            indent <= definitionIndent &&
-            !trimmed.startsWith("def ") &&
-            !trimmed.startsWith("class ")
-        ) {
-            definitionIndent = null;
-        }
+        //if (
+        //    definitionIndent !== null &&
+        //    indent <= definitionIndent &&
+        //    !trimmed.startsWith("def ") &&
+        //    !trimmed.startsWith("class ")
+        //) {
+        //    definitionIndent = null;
+        //}
 
         // -------------------------
         // @module restrictions
         // -------------------------
 
-        if (is_module && definitionIndent === null) {
-            const allowed =
-                trimmed.startsWith("inherit ") ||
-                trimmed.startsWith("script_name ") ||
-                trimmed.startsWith("def ") ||
-                trimmed.startsWith("class ") ||
-                trimmed.startsWith("@");
+        //if (is_module && definitionIndent === null) {
+        //    const allowed =
+        //        trimmed.startsWith("inherit ") ||
+        //        trimmed.startsWith("script_name ") ||
+        //        trimmed.startsWith("def ") ||
+        //        trimmed.startsWith("class ") ||
+        //        trimmed.startsWith("@");
 
-            if (!allowed) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            0,
-                            i,
-                            line.length
-                        ),
-                        "Cannot put executing code out of definition blocks",
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-        }
+        //    if (!allowed) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    0,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                "Cannot put executing code out of definition blocks",
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //}
 
         // -------------------------
         // //
@@ -326,159 +285,159 @@ function checkGS(doc, collection) {
         // script_name
         // -------------------------
 
-        if (trimmed.startsWith("script_name ")) {
-            const idx = line.indexOf("script_name");
-            const name = line.slice(idx + 12).trim();
-
-            if (script_name !== null) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            idx + 11
-                        ),
-                        'Too many keywords "script_name"',
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-
-            if (name.length === 0) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        "Expect a script name",
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-            else if (knownClasses.includes(name)) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        `Script name "${name}" already exists`,
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-            else {
-                script_name = name;
-                knownClasses.push(name);
-            }
-        }
-
-        // -------------------------
-        // inherit
-        // -------------------------
-
-        if (trimmed.startsWith("inherit ")) {
-            const idx = line.indexOf("inherit");
-            const parent = line.slice(idx + 8).trim();
-
-            if (inherit_class_name !== null) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            idx + 7
-                        ),
-                        'Too many keywords "inherit"',
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-
-            if (parent.length === 0) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        "Expect an existing class",
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-            else if (parent === script_name) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        "Cannot inherit the script itself",
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-            else if (!knownClasses.includes(parent)) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        `Class "${parent}" does not exist`,
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-
-            inherit_class_name = parent;
-        }
-        if (trimmed.startsWith("def")) {
-            const idx = line.indexOf("def");
-        
-            if (trimmed.length === 3) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        "Expect a function name",
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-            else if (!line.includes("(")) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            i,
-                            idx,
-                            i,
-                            line.length
-                        ),
-                        'Expect "("',
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            }
-        }
+        //if (trimmed.startsWith("script_name ")) {
+        //    const idx = line.indexOf("script_name");
+        //    const name = line.slice(idx + 12).trim();
+//
+        //    if (script_name !== null) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    idx + 11
+        //                ),
+        //                'Too many keywords "script_name"',
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+//
+        //    if (name.length === 0) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                "Expect a script name",
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //    else if (knownClasses.includes(name)) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                `Script name "${name}" already exists`,
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //    else {
+        //        script_name = name;
+        //        knownClasses.push(name);
+        //    }
+        //}
+//
+        //// -------------------------
+        //// inherit
+        //// -------------------------
+//
+        //if (trimmed.startsWith("inherit ")) {
+        //    const idx = line.indexOf("inherit");
+        //    const parent = line.slice(idx + 8).trim();
+//
+        //    if (inherit_class_name !== null) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    idx + 7
+        //                ),
+        //                'Too many keywords "inherit"',
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+//
+        //    if (parent.length === 0) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                "Expect an existing class",
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //    else if (parent === script_name) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                "Cannot inherit the script itself",
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //    else if (!knownClasses.includes(parent)) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                `Class "${parent}" does not exist`,
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+//
+        //    inherit_class_name = parent;
+        //}
+        //if (trimmed.startsWith("def")) {
+        //    const idx = line.indexOf("def");
+        //
+        //    if (trimmed.length === 3) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                "Expect a function name",
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //    else if (!line.includes("(")) {
+        //        diagnostics.push(
+        //            new vscode.Diagnostic(
+        //                new vscode.Range(
+        //                    i,
+        //                    idx,
+        //                    i,
+        //                    line.length
+        //                ),
+        //                'Expect "("',
+        //                vscode.DiagnosticSeverity.Error
+        //            )
+        //        );
+        //    }
+        //}
     }
 
     collection.set(doc.uri, diagnostics);
@@ -562,27 +521,61 @@ class GSHoverProvider {
         }
 
         const word = document.getText(wordRange);
-        const lines = document.getText().split("\n");
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-
-            if (line.startsWith("def ")) {
-                
-                const functionName = line
-                    .slice(4)
-                    .split(/[\s(]/)[0];
-                let description = "There is no any description..."
-                if (i-1>=0 && lines[i-1].startsWith("#DOC#")){
-                    description = lines[i-1].slice(5)
-                }
-
-                if (functionName === word) {
-                    return new vscode.Hover(
-                        `## (Function) ${functionName} \n\n def ${functionName}() \n\n ${description}`
-                    );
-                }
-            }
+        const md = new vscode.MarkdownString();
+        let name;
+        let type;
+        let args = "";
+        let returns = "none";
+        let doc = "· There is no documentation available."
+        if (word==="print"){
+            name="print";
+            type="Built-in Function";
+            args="*values: Object, printtype: <\"message\",\"warning\",\"error\",\"imformation\">";
+            doc="Print messages to terminal as the given printtype.";
         }
+        if (word==="printwarn"){
+            name="printwarn";
+            type="Built-in Function";
+            args="message: Object, fatal: Boolean = false";
+            doc="Print a message to terminal as yellow warning.\n\nIf fatal is true, will quit the whole program.";
+        }
+        if (word==="printerr"){
+            name="printerr";
+            type="Built-in Function";
+            args="message: Object, fatal: Boolean = false";
+            doc="Print a message to terminal as red ERROR.\n\nIf fatal is true, will quit the whole program.";
+        }
+        if (word==="printinfo"){
+            name="printinfo";
+            type="Built-in Function";
+            args="message: Object";
+            doc="Print a message to terminal as blue information.";
+        }
+        if (word==="versinfo"){
+            name="versinfo";
+            type="Built-in Function";
+            doc="Print GameScript(And Python)'s version information to terminal.\n\nIf your Python version is lower than 3.12, versinfo will outputs a warning to prompt users.";
+        }
+        if (word === "printbash") {
+            name = "printbash";
+            type="Built-in Function";
+            args="*values: Object";
+            doc="Print messages to terminal as normal text.";
+        }
+        if (word === "input") {
+            name = "input";
+            type="Built-in Function";
+            args="prompt: String";
+            doc="Ask to user and gets the awnser.";
+        }
+        if (!name || !type){
+            return;
+        }
+        md.appendCodeblock(
+            `(${type}) def ${name}(${args}) -> ${returns}`,
+            "gamescript"
+        );
+        md.appendMarkdown(doc)
+        return new vscode.Hover(md, wordRange);
     }
 }
