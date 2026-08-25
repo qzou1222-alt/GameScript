@@ -130,6 +130,11 @@ class GSProvider {
                 "printinfo",
                 vscode.CompletionItemKind.Function
             ));
+        items.push(
+            new vscode.CompletionItem(
+                "input",
+                vscode.CompletionItemKind.Function
+            ));
         return items;
 
     }

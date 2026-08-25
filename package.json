@@ -2,7 +2,7 @@
   "name": "gamescript",
   "displayName": "GameScript Extension for VS Code",
   "description": "Language support for GameScript (.gs) in Visual Studio Code.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "VictorZou",
   "author": {
     "name": "Victor Zou"
