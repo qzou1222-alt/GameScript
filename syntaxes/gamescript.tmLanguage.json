@@ -22,7 +22,7 @@
 				},
 				{
 					"name": "entity.name.function.gamescript",
-					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input)\\b"
+					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer)\\b"
 				},
 				{
       				"name": "keyword.directive.doc.gamescript",

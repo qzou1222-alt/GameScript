@@ -135,6 +135,31 @@ class GSProvider {
                 "input",
                 vscode.CompletionItemKind.Function
             ));
+        items.push(
+            new vscode.CompletionItem(
+                "is_integer",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "is_float",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "none",
+                vscode.CompletionItemKind.Keyword
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "true",
+                vscode.CompletionItemKind.Keyword
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "true",
+                vscode.CompletionItemKind.Keyword
+            ));
         return items;
 
     }
@@ -534,44 +559,56 @@ class GSHoverProvider {
         let doc = "· There is no documentation available."
         if (word==="print"){
             name="print";
-            type="Built-in Function";
+            type="Function";
             args="*values: Object, printtype: <\"message\",\"warning\",\"error\",\"imformation\">";
             doc="Print messages to terminal as the given printtype.";
         }
         if (word==="printwarn"){
             name="printwarn";
-            type="Built-in Function";
+            type="Function";
             args="message: Object, fatal: Boolean = false";
             doc="Print a message to terminal as yellow warning.\n\nIf fatal is true, will quit the whole program.";
         }
         if (word==="printerr"){
             name="printerr";
-            type="Built-in Function";
+            type="Function";
             args="message: Object, fatal: Boolean = false";
             doc="Print a message to terminal as red ERROR.\n\nIf fatal is true, will quit the whole program.";
         }
         if (word==="printinfo"){
             name="printinfo";
-            type="Built-in Function";
+            type="Function";
             args="message: Object";
             doc="Print a message to terminal as blue information.";
         }
         if (word==="versinfo"){
             name="versinfo";
-            type="Built-in Function";
+            type="Function";
             doc="Print GameScript(And Python)'s version information to terminal.\n\nIf your Python version is lower than 3.12, versinfo will outputs a warning to prompt users.";
         }
         if (word === "printbash") {
             name = "printbash";
-            type="Built-in Function";
+            type="Function";
             args="*values: Object";
             doc="Print messages to terminal as normal text.";
         }
         if (word === "input") {
             name = "input";
-            type="Built-in Function";
+            type="Function";
             args="prompt: String";
             doc="Ask to user and gets the awnser.";
+        }
+        if (word === "is_integer") {
+            name = "is_integer";
+            type="Function";
+            args="value: Object";
+            doc="Check an object is an valid integer.";
+        }
+        if (word === "is_integer") {
+            name = "is_float";
+            type="Function";
+            args="value: Object";
+            doc="Check an object is an valid float point number.";
         }
         if (!name || !type){
             return;

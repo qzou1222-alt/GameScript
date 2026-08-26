@@ -1,8 +1,10 @@
 import sys
+import types
 from core import *
+from core import _BoolHumanRead, _NoneType
 variables = {}
 ind = 0
-functions = {
+functions:dict[str,types.FunctionType] = {
     "print": print,
     "printerr": printerr,
     "printwarn": printwarn,
@@ -10,6 +12,8 @@ functions = {
     "printbash": printbash,
     "versinfo": versinfo,
     "input": input,
+    "is_integer": is_integer,
+    "is_float":is_float
 }
 def find_assignment(line):
     in_string = False
@@ -62,7 +66,7 @@ def parse_args(content):
         else:
             values.append(evaluate(part))
     return values, kwargs
-def evaluate(expression):
+def evaluate(expression: str):
     expression = expression.strip()
     if expression == "":
         return None
@@ -73,6 +77,16 @@ def evaluate(expression):
         and expression[-1] == '"'
     ):
         return expression[1:-1]
+    else:
+        if is_integer(expression, False):
+            return int(expression)
+        if is_float(expression):
+            return float(expression)
+        if expression in {"true","false"}:
+            b=True if expression=="true" else False
+            return _BoolHumanRead(b=b)
+        if expression == "none":
+            return _NoneType()
     # Variable
     if expression in variables:
         return variables[expression]
@@ -89,10 +103,16 @@ def evaluate(expression):
                 values, kwargs = parse_args(content)
                 function = functions[name]
                 try:
-                    return function(
-                        *values,
-                        **kwargs
+                    result = function(
+                    *values,
+                    **kwargs
                     )
+
+                    if isinstance(result, bool):
+                        return _BoolHumanRead(result)
+                    if result is None:
+                        return _NoneType()
+                    return result
                 except TypeError as error:
                     printerr(
                         f"Type Error: {error}",
@@ -168,7 +188,6 @@ def execute_line(line: str):
             fatal=True
         )
 
-    # Assignment
     assignment = find_assignment(line)
 
     if assignment != -1:
@@ -183,8 +202,8 @@ def execute_line(line: str):
                 fatal=True
             )
 
+        
         variables[name] = evaluate(value)
-
         return
 
     # Normal expression / builtin call

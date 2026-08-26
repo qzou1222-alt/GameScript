@@ -3,7 +3,7 @@ import typing
 import colorama
 import sys
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.1.1"
+_GAME_SCRIPT_VERSION = "1.2.0"
 def print(
         *values: object,
         printtype: typing.Literal["message","warning","error","info"] = "message"
@@ -39,3 +39,32 @@ def versinfo():
     if sys.version_info<(3,12):
         printwarn(f"[Warning] GameScript requires Python 3.12 or newer, keep version \"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}\" may produce an error later.")
     printbash("To see version history or feature, go to https://github.com/qzou1222-alt/GameScript.")
+def is_integer(value:object, allow_stringfloat:bool=True) -> bool:
+    if isinstance(value,float):
+        return value.is_integer()
+    try:
+        int(value)
+        return True
+    except (TypeError, ValueError):
+        if allow_stringfloat:
+            try:
+                float(value).is_integer()
+                return True
+            except (TypeError, ValueError):
+                return False
+        return False
+def is_float(value:object) -> bool:
+    try:
+        float(value)
+        return True
+    except (TypeError, ValueError):
+        return False
+class _BoolHumanRead:
+    def __init__(self, b: bool):
+        self.b=b
+    def __str__(self):
+        return "true" if self.b else "false"
+class _NoneType:
+    def __str__(self):
+        return "none"
+    
