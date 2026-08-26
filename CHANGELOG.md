@@ -8,38 +8,32 @@ For each release, the changelog describes what was added, changed, fixed, or rem
 
 At the end of this file, the release history is provided with links to previous releases.
 
-## 1.2.0 - 2026-08-25
+## 1.2.1patch - 2026-08-25
 
-Data Update
+This is `Patch Version`, so only will change something, add single feature or fix some bugs.
 
-### Runtime
-
-- Added boolean (true, false) support.
-- Added none support.
-- Added is_integer().
-- Added is_float().
-
-### Parser
-
-- Can sort Integer, Float, String, Boolean, and none.
+Notice: Patch releases **don't** need to follow the theme of the minor series.
 
 ### Editor
 
-- Added is_integer() to CompletionItems.
-- Added is_float() to CompletionItems.
-- Added none to CompletionItems.
-- Added true to CompletionItems.
-- Added false to CompletionItems.
-- Added hover information for is_integer().
-- Added hover information for is_float().
-- Added highlight for is_integer().
-- Added highlight for is_float().
-- Added highlight for true.
-- Added highlight for false.
-- Added highlight for none.
+- Added hover support for #DOC# documents.
+- Updated the VersionInfo.gamescript documentation.
+  - Before:
+    ```gamescript
+    # Run this file to check GameScript's Version Information.
+    ```
+  - Now:
+    ```gamescript
+    #DOC# Run this file to check GameScript's Version Information.
+    #DOC# ```gamescript
+    #DOC# versinfo()
+    #DOC# ```
+    ```
+- Fixed an issue with Boolean CompletionItems.
 
 ## Releases
 
+- [1.2.1patch](https://github.com/qzou1222-alt/GameScript/blob/v1.2.1patch/CHANGELOG.md)   `patch`
 - [1.2.0](https://github.com/qzou1222-alt/GameScript/blob/v1.2.0/CHANGELOG.md)
 - [1.1.1patch](https://github.com/qzou1222-alt/GameScript/blob/v1.1.1patch/CHANGELOG.md)   `patch`
 - [1.1.0](https://github.com/qzou1222-alt/GameScript/blob/v1.1.0/CHANGELOG.md)

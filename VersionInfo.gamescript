@@ -1,2 +1,5 @@
-# Run this file to check GameScript's Version Information.
+#DOC# Run this file to check GameScript's Version Information.
+#DOC# ```gamescript
+#DOC# versinfo()
+#DOC# ```
 versinfo()

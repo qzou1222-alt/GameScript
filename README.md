@@ -37,7 +37,7 @@ to execute the file.
 
 ## Version
 
-Current version: **1.2.0**
+Current version: **1.2.1**
 
 ## Links
 

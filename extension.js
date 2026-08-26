@@ -157,7 +157,7 @@ class GSProvider {
             ));
         items.push(
             new vscode.CompletionItem(
-                "true",
+                "false",
                 vscode.CompletionItemKind.Keyword
             ));
         return items;
@@ -544,80 +544,149 @@ module.exports = {
 };
 class GSHoverProvider {
     provideHover(document, position) {
+        const lineText = document.lineAt(position.line).text;
+        const currentDocIndex = lineText.indexOf("#DOC#");
+    
+        // Check whether the cursor is actually over #DOC#
+        if (
+            currentDocIndex !== -1 &&
+            position.character >= currentDocIndex &&
+            position.character <= currentDocIndex + 5
+        ) {
+            let startLine = position.line;
+            let endLine = position.line;
+        
+            // Look upward
+            while (startLine > 0) {
+                const previousLine = document.lineAt(startLine - 1).text;
+            
+                if (previousLine.indexOf("#DOC#") === -1) {
+                    break;
+                }
+            
+                startLine--;
+            }
+        
+            // Look downward
+            while (endLine + 1 < document.lineCount) {
+                const nextLine = document.lineAt(endLine + 1).text;
+            
+                if (nextLine.indexOf("#DOC#") === -1) {
+                    break;
+                }
+            
+                endLine++;
+            }
+        
+            // Collect documentation
+            let text = "";
+        
+            for (let line = startLine; line <= endLine; line++) {
+                const currentLine = document.lineAt(line).text;
+                const index = currentLine.indexOf("#DOC#");
+            
+                text += currentLine.slice(index + 5).trim();
+            
+                if (line < endLine) {
+                    text += "\n";
+                }
+            }
+        
+            // Range of the #DOC# currently being hovered
+            const docRange = new vscode.Range(
+                new vscode.Position(
+                    position.line,
+                    currentDocIndex
+                ),
+                new vscode.Position(
+                    position.line,
+                    currentDocIndex + 5
+                )
+            );
+        
+            const md = new vscode.MarkdownString();
+        
+            md.appendCodeblock(
+                "(Document) #DOC# ...",
+                "gamescript"
+            );
+        
+            md.appendMarkdown(text);
+        
+            return new vscode.Hover(md, docRange);
+        }
         const wordRange = document.getWordRangeAtPosition(position);
-
         if (!wordRange) {
             return;
         }
-
         const word = document.getText(wordRange);
         const md = new vscode.MarkdownString();
         let name;
         let type;
         let args = "";
         let returns = "none";
-        let doc = "· There is no documentation available."
-        if (word==="print"){
-            name="print";
-            type="Function";
-            args="*values: Object, printtype: <\"message\",\"warning\",\"error\",\"imformation\">";
-            doc="Print messages to terminal as the given printtype.";
+        let doc = "· There is no documentation available.";
+        if (word === "print") {
+            name = "print";
+            type = "Function";
+            args = "*values: Object, printtype: <\"message\",\"warning\",\"error\",\"information\">";
+            doc = "Print messages to terminal as the given printtype.";
         }
-        if (word==="printwarn"){
-            name="printwarn";
-            type="Function";
-            args="message: Object, fatal: Boolean = false";
-            doc="Print a message to terminal as yellow warning.\n\nIf fatal is true, will quit the whole program.";
+        if (word === "printwarn") {
+            name = "printwarn";
+            type = "Function";
+            args = "message: Object, fatal: Boolean = false";
+            doc = "Print a message to terminal as yellow warning.\n\nIf fatal is true, will quit the whole program.";
         }
-        if (word==="printerr"){
-            name="printerr";
-            type="Function";
-            args="message: Object, fatal: Boolean = false";
-            doc="Print a message to terminal as red ERROR.\n\nIf fatal is true, will quit the whole program.";
+        if (word === "printerr") {
+            name = "printerr";
+            type = "Function";
+            args = "message: Object, fatal: Boolean = false";
+            doc = "Print a message to terminal as red ERROR.\n\nIf fatal is true, will quit the whole program.";
         }
-        if (word==="printinfo"){
-            name="printinfo";
-            type="Function";
-            args="message: Object";
-            doc="Print a message to terminal as blue information.";
+        if (word === "printinfo") {
+            name = "printinfo";
+            type = "Function";
+            args = "message: Object";
+            doc = "Print a message to terminal as blue information.";
         }
-        if (word==="versinfo"){
-            name="versinfo";
-            type="Function";
-            doc="Print GameScript(And Python)'s version information to terminal.\n\nIf your Python version is lower than 3.12, versinfo will outputs a warning to prompt users.";
+        if (word === "versinfo") {
+            name = "versinfo";
+            type = "Function";
+            doc = "Print GameScript (and Python)'s version information to terminal.\n\nIf your Python version is lower than 3.12, versinfo will output a warning.";
         }
         if (word === "printbash") {
             name = "printbash";
-            type="Function";
-            args="*values: Object";
-            doc="Print messages to terminal as normal text.";
+            type = "Function";
+            args = "*values: Object";
+            doc = "Print messages to terminal as normal text.";
         }
         if (word === "input") {
             name = "input";
-            type="Function";
-            args="prompt: String";
-            doc="Ask to user and gets the awnser.";
+            type = "Function";
+            args = "prompt: String";
+            doc = "Ask the user and get the answer.";
         }
         if (word === "is_integer") {
             name = "is_integer";
-            type="Function";
-            args="value: Object";
-            doc="Check an object is an valid integer.";
+            type = "Function";
+            args = "value: Object";
+            doc = "Check if an object is a valid integer.";
         }
-        if (word === "is_integer") {
+        if (word === "is_float") {
             name = "is_float";
-            type="Function";
-            args="value: Object";
-            doc="Check an object is an valid float point number.";
+            type = "Function";
+            args = "value: Object";
+            doc = "Check if an object is a valid floating-point number.";
         }
-        if (!name || !type){
+        if (!name || !type) {
             return;
         }
         md.appendCodeblock(
             `(${type}) def ${name}(${args}) -> ${returns}`,
             "gamescript"
         );
-        md.appendMarkdown(doc)
+        md.appendMarkdown(doc);
         return new vscode.Hover(md, wordRange);
     }
 }

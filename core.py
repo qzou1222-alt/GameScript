@@ -3,7 +3,7 @@ import typing
 import colorama
 import sys
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.2.0"
+_GAME_SCRIPT_VERSION = "1.2.1"
 def print(
         *values: object,
         printtype: typing.Literal["message","warning","error","info"] = "message"
