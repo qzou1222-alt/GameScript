@@ -8,31 +8,44 @@ For each release, the changelog describes what was added, changed, fixed, or rem
 
 At the end of this file, the release history is provided with links to previous releases.
 
-## 1.2.1patch - 2026-08-25
+## 1.3.0 - 2026-08-27
 
-This is `Patch Version`, so only will change something, add single feature or fix some bugs.
+Number Update
 
-Notice: Patch releases **don't** need to follow the theme of the minor series.
+### Runtime
+
+- Added sum().
+- Added sub().
+- Added mul().
+- Added div().
+- Added NaN.
+- Fixed Bracket Error being incorrectly produced by `(` in `#DOC#` documents.
 
 ### Editor
 
-- Added hover support for #DOC# documents.
-- Updated the VersionInfo.gamescript documentation.
-  - Before:
-    ```gamescript
-    # Run this file to check GameScript's Version Information.
-    ```
-  - Now:
-    ```gamescript
-    #DOC# Run this file to check GameScript's Version Information.
-    #DOC# ```gamescript
-    #DOC# versinfo()
-    #DOC# ```
-    ```
-- Fixed an issue with Boolean CompletionItems.
+- Added sum() to CompletionItems.
+- Added sub() to CompletionItems.
+- Added mul() to CompletionItems.
+- Added div() to CompletionItems.
+- Added NaN to CompletionItems.
+- Added highlight for sum().
+- Added highlight for sub().
+- Added highlight for mul().
+- Added highlight for div().
+- Added highlight for NaN.
+- Added hover support for sum().
+- Added hover support for sub().
+- Added hover support for mul().
+- Added hover support for div().
+- Added hover support for NaN.
+
+### Diagnostics
+
+- Fixed Bracket Error Diagnostic being incorrectly produced by `(` in `#DOC#` documents.
 
 ## Releases
 
+- [1.3.0](https://github.com/qzou1222-alt/GameScript/blob/v1.3.0/CHANGELOG.md)
 - [1.2.1patch](https://github.com/qzou1222-alt/GameScript/blob/v1.2.1patch/CHANGELOG.md)   `patch`
 - [1.2.0](https://github.com/qzou1222-alt/GameScript/blob/v1.2.0/CHANGELOG.md)
 - [1.1.1patch](https://github.com/qzou1222-alt/GameScript/blob/v1.1.1patch/CHANGELOG.md)   `patch`

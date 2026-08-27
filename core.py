@@ -3,7 +3,8 @@ import typing
 import colorama
 import sys
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.2.1"
+_GAME_SCRIPT_VERSION = "1.3.0"
+NaN=float("nan")
 def print(
         *values: object,
         printtype: typing.Literal["message","warning","error","info"] = "message"
@@ -59,6 +60,33 @@ def is_float(value:object) -> bool:
         return True
     except (TypeError, ValueError):
         return False
+def sum(*values:int|float):
+    if len(values)==0:
+        return None
+    return builtins.sum(values)
+def sub(*values:int|float):
+    if len(values)==0:
+        return None
+    start=values[0]
+    for value in values[1:]:
+        start-=value
+    return start
+def mul(*values:int|float):
+    if len(values)==0:
+        return None
+    start=values[0]
+    for value in values[1:]:
+        start*=value
+    return start
+def div(*values:int|float):
+    if len(values)==0:
+        return None
+    start=values[0]
+    for value in values[1:]:
+        if value==0:
+            return NaN
+        start/=value
+    return start
 class _BoolHumanRead:
     def __init__(self, b: bool):
         self.b=b

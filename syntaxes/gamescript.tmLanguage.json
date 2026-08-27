@@ -22,19 +22,23 @@
 				},
 				{
 					"name": "entity.name.function.gamescript",
-					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer)\\b"
+					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div)\\b"
+				},				
+				{
+					"name": "variable.gamescript",
+					"match": "\\b(NaN)\\b"
+				},
+				{
+					"name": "invalid",
+					"match": "//.*$"
 				},
 				{
       				"name": "keyword.directive.doc.gamescript",
       				"match": "#DOC#.*$"
     			},
 				{
-					"name":"comment.line",
+					"name":"comment.line.gamescript",
 					"match": "#.*$"
-				},
-				{
-					"name": "invalid",
-					"match": "//.*$"
 				}
 		]
 		},

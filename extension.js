@@ -147,6 +147,31 @@ class GSProvider {
             ));
         items.push(
             new vscode.CompletionItem(
+                "sum",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "sub",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "div",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "mul",
+                vscode.CompletionItemKind.Function
+            ));
+        items.push(
+            new vscode.CompletionItem(
+                "NaN",
+                vscode.CompletionItemKind.Variable
+            ));
+        items.push(
+            new vscode.CompletionItem(
                 "none",
                 vscode.CompletionItemKind.Keyword
             ));
@@ -486,7 +511,9 @@ function checkBrackets(lines, diagnostics) {
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-
+        if (line.startsWith("#")) {
+            continue;
+        }
         for (let j = 0; j < line.length; j++) {
             const ch = line[j];
 
@@ -619,10 +646,13 @@ class GSHoverProvider {
         if (!wordRange) {
             return;
         }
+        
         const word = document.getText(wordRange);
         const md = new vscode.MarkdownString();
         let name;
         let type;
+        let vartype = "Object"
+        let varvaluename = "?";
         let args = "";
         let returns = "none";
         let doc = "· There is no documentation available.";
@@ -666,26 +696,77 @@ class GSHoverProvider {
             type = "Function";
             args = "prompt: String";
             doc = "Ask the user and get the answer.";
+            returns = "String";
         }
         if (word === "is_integer") {
             name = "is_integer";
             type = "Function";
             args = "value: Object";
             doc = "Check if an object is a valid integer.";
+            returns = "Boolean";
         }
         if (word === "is_float") {
             name = "is_float";
             type = "Function";
             args = "value: Object";
             doc = "Check if an object is a valid floating-point number.";
+            returns = "Boolean";
+        }
+        if (word === "sum") {
+            name = "sum";
+            type = "Function";
+            args = "*values: <Integer, Float>";
+            doc = "get the result of x plus y in values.";
+            returns = "<Integer, Float>";
+        }
+        if (word === "sub") {
+            name = "sub";
+            type = "Function";
+            args = "*values: <Integer, Float>";
+            doc = "get the result of x minus y in values.";
+            returns = "<Integer, Float>";
+        }
+        if (word === "mul") {
+            name = "mul";
+            type = "Function";
+            args = "*values: <Integer, Float>";
+            doc = "get the result of x times y in values.";
+            returns = "<Integer, Float>";
+        }
+        if (word === "div") {
+            name = "div";
+            type = "Function";
+            args = "*values: <Integer, Float>";
+            doc = "get the result of x divides y in values.";
+            returns = "<Integer, Float>";
+        }
+        if (word === "NaN") {
+            name = "NaN";
+            type = "Variable";
+            vartype = "Float"
+            doc = "NaN, means \"Not A Number\".";
+            varvaluename = "NaN";
         }
         if (!name || !type) {
             return;
         }
-        md.appendCodeblock(
-            `(${type}) def ${name}(${args}) -> ${returns}`,
-            "gamescript"
-        );
+        if (type==="Function"){
+            md.appendCodeblock(
+                `(${type}) def ${name}(${args}) -> ${returns}`,
+                "gamescript"
+            );
+        }
+        else if (type==="Variable"){
+            md.appendCodeblock(
+                `(${type}) ${name}: ${vartype} = ${varvaluename}`,
+                "gamescript"
+            );
+        }
+        else {
+            md.appendCodeblock(
+                `(Unknown) ${name}`
+            )
+        }
         md.appendMarkdown(doc);
         return new vscode.Hover(md, wordRange);
     }

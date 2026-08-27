@@ -2,7 +2,7 @@ import sys
 import types
 from core import *
 from core import _BoolHumanRead, _NoneType
-variables = {}
+variables = {"NaN": float("nan")}
 ind = 0
 functions:dict[str,types.FunctionType] = {
     "print": print,
@@ -13,7 +13,11 @@ functions:dict[str,types.FunctionType] = {
     "versinfo": versinfo,
     "input": input,
     "is_integer": is_integer,
-    "is_float":is_float
+    "is_float":is_float,
+    "sum": sum,
+    "sub": sub,
+    "mul": mul,
+    "div": div
 }
 def find_assignment(line):
     in_string = False
@@ -118,8 +122,7 @@ def evaluate(expression: str):
                         f"Type Error: {error}",
                         fatal=True
                     )
-    # Unknown expression
-    return expression
+    printerr(f"Expression Error: Invalid expression {expression}")
 def checkBrackets(line):
     stack = []
     pairs = {
