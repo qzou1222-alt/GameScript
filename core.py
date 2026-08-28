@@ -3,7 +3,7 @@ import typing
 import colorama
 import sys
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.3.0"
+_GAME_SCRIPT_VERSION = "1.4.0"
 NaN=float("nan")
 def print(
         *values: object,
@@ -87,6 +87,19 @@ def div(*values:int|float):
             return NaN
         start/=value
     return start
+def strupper(string: str):
+    return string.upper()
+def strlower(string: str):
+    return string.lower()
+def strjoin(*strings: str, sep: str = ""):
+    return sep.join(strings)
+def strrepeat(string: str, amount: int):
+    return string*amount
+def strlen(string: str):
+    return len(string)
+def strcontains(string: str, contains: str):
+    return string in contains
+
 class _BoolHumanRead:
     def __init__(self, b: bool):
         self.b=b

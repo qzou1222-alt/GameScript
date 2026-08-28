@@ -17,7 +17,13 @@ functions:dict[str,types.FunctionType] = {
     "sum": sum,
     "sub": sub,
     "mul": mul,
-    "div": div
+    "div": div,
+    "String.join": strjoin,
+    "String.repeat": strrepeat,
+    "String.upper": strupper,
+    "String.lower": strlower,
+    "String.length": strlen,
+    "String.contains": strcontains
 }
 def find_assignment(line):
     in_string = False
@@ -74,7 +80,6 @@ def evaluate(expression: str):
     expression = expression.strip()
     if expression == "":
         return None
-    # String
     if (
         len(expression) >= 2
         and expression[0] == '"'

@@ -23,7 +23,24 @@
 				{
 					"name": "entity.name.function.gamescript",
 					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div)\\b"
-				},				
+				},
+				{
+					"match": "\\b(String)\\.(join|repeat|upper|lower|contains|length)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.name.type.gamescript"
+						},
+						"2": {
+							"name": "entity.name.function.gamescript"
+						}
+					}
+				},
+				{
+					"name": "entity.name.type.gamescript",
+					"match": "\\bString\\b"
+				},
+
+
 				{
 					"name": "variable.gamescript",
 					"match": "\\b(NaN)\\b"

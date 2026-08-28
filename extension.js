@@ -79,7 +79,8 @@ function activate(context) {
     );
     const provider = vscode.languages.registerCompletionItemProvider(
         ["gs", "gamescript"],
-        new GSProvider()
+        new GSProvider(),
+        "."
     );
     const hoverProvider =
         vscode.languages.registerHoverProvider(
@@ -92,101 +93,50 @@ function activate(context) {
 
 class GSProvider {
     provideCompletionItems(document, position) {
+        const line = document.lineAt(position.line).text;
+        const before = line.slice(0, position.character);
+
         const items = [];
 
-        
-        items.push(
-            new vscode.CompletionItem(
-                "#DOC#",
-                vscode.CompletionItemKind.Struct
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "print",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "printerr",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "printwarn",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "printbash",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "versinfo",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "printinfo",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "input",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "is_integer",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "is_float",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "sum",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "sub",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "div",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "mul",
-                vscode.CompletionItemKind.Function
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "NaN",
-                vscode.CompletionItemKind.Variable
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "none",
-                vscode.CompletionItemKind.Keyword
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "true",
-                vscode.CompletionItemKind.Keyword
-            ));
-        items.push(
-            new vscode.CompletionItem(
-                "false",
-                vscode.CompletionItemKind.Keyword
-            ));
-        return items;
+        function add(name, kind) {
+            items.push(
+                new vscode.CompletionItem(name, kind)
+            );
+        }
 
+        // String. mode
+        if (before.endsWith("String.")) {
+            add("join", vscode.CompletionItemKind.Method);
+            add("length", vscode.CompletionItemKind.Method);
+            add("upper", vscode.CompletionItemKind.Method);
+            add("lower", vscode.CompletionItemKind.Method);
+            add("repeat", vscode.CompletionItemKind.Method);
+            add("contains", vscode.CompletionItemKind.Method);
+
+            return items;
+        }
+
+        // Normal mode
+        add("print", vscode.CompletionItemKind.Function);
+        add("printinfo", vscode.CompletionItemKind.Function);
+        add("printerr", vscode.CompletionItemKind.Function);
+        add("printwarn", vscode.CompletionItemKind.Function);
+        add("printbash", vscode.CompletionItemKind.Function);
+        add("input", vscode.CompletionItemKind.Function);
+        add("versinfo", vscode.CompletionItemKind.Function);
+        add("is_integer", vscode.CompletionItemKind.Function);
+        add("is_float", vscode.CompletionItemKind.Function);
+        add("sum", vscode.CompletionItemKind.Function);
+        add("sub", vscode.CompletionItemKind.Function);
+        add("mul", vscode.CompletionItemKind.Function);
+        add("div", vscode.CompletionItemKind.Function);
+
+        add("String", vscode.CompletionItemKind.Class);
+        add("true", vscode.CompletionItemKind.Keyword);
+        add("false", vscode.CompletionItemKind.Keyword);
+        add("none", vscode.CompletionItemKind.Keyword);
+        add("NaN", vscode.CompletionItemKind.Variable);
+        return items;
     }
 }
 function checkGS(doc, collection) {
@@ -649,6 +599,7 @@ class GSHoverProvider {
         
         const word = document.getText(wordRange);
         const md = new vscode.MarkdownString();
+        const line = document.lineAt(position.line).text;
         let name;
         let type;
         let vartype = "Object"
@@ -656,6 +607,49 @@ class GSHoverProvider {
         let args = "";
         let returns = "none";
         let doc = "· There is no documentation available.";
+        let inherits = " < Object"
+        if (line.includes("String.join")) {
+            name = "String.join";
+            type = "Function";
+            args = "*strings: String, sep: String";
+            returns = "String";
+            doc = "Join strings with a separator.";
+        }
+        if (line.includes("String.upper")) {
+            name = "String.upper";
+            type = "Function";
+            args = "string: String";
+            returns = "String";
+            doc = "Convert a string to uppercase.";
+        }
+        if (line.includes("String.lower")) {
+            name = "String.lower";
+            type = "Function";
+            args = "string: String";
+            returns = "String";
+            doc = "Convert a string to lowercase.";
+        }
+        if (line.includes("String.repeat")) {
+            name = "String.repeat";
+            type = "Function";
+            args = "string: String, amount: Integer";
+            returns = "String";
+            doc = "Repeat a string as amount times";
+        }
+        if (line.includes("String.contains")) {
+            name = "String.contains";
+            type = "Function";
+            args = "string: String, contains: String";
+            returns = "Boolean";
+            doc = "Check the string is in contains.";
+        }
+        if (line.includes("String.length")) {
+            name = "String.length";
+            type = "Function";
+            args = "string: String";
+            returns = "Integer";
+            doc = "Get the length of the string.";
+        }
         if (word === "print") {
             name = "print";
             type = "Function";
@@ -747,6 +741,11 @@ class GSHoverProvider {
             doc = "NaN, means \"Not A Number\".";
             varvaluename = "NaN";
         }
+        if (word === "String") {
+            name = "String";
+            type = "Class";
+            doc = "";
+        }
         if (!name || !type) {
             return;
         }
@@ -761,6 +760,12 @@ class GSHoverProvider {
                 `(${type}) ${name}: ${vartype} = ${varvaluename}`,
                 "gamescript"
             );
+        }
+        else if (type==="Class"){
+            md.appendCodeblock(
+                `(${type}) ${name}${inherits}`,
+                "gamescript"
+            )
         }
         else {
             md.appendCodeblock(
