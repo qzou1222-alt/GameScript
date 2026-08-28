@@ -2,8 +2,10 @@ import builtins
 import typing
 import colorama
 import sys
+import subprocess
+import pathlib
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.4.0"
+_GAME_SCRIPT_VERSION = "1.5.0"
 NaN=float("nan")
 def print(
         *values: object,
@@ -98,8 +100,15 @@ def strrepeat(string: str, amount: int):
 def strlen(string: str):
     return len(string)
 def strcontains(string: str, contains: str):
-    return string in contains
-
+    return contains in string
+def playscript(file: str):
+    subprocess.run(
+        [
+            "python",
+            str(pathlib.Path(__file__).parent / "runner.py"),
+            file
+        ]
+    )
 class _BoolHumanRead:
     def __init__(self, b: bool):
         self.b=b
@@ -108,4 +117,14 @@ class _BoolHumanRead:
 class _NoneType:
     def __str__(self):
         return "none"
-    
+class Object:
+    def _to_string(self):
+        return "<Object instance>"
+class String:
+    def __init__(self, from_: Object):
+        self.string=from_._to_string()
+    def _to_string(self):
+        return self.string
+class UnknownType:
+    def __str__(self):
+        return "?"

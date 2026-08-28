@@ -2,4 +2,5 @@
 #DOC# ```gamescript
 #DOC# versinfo()
 #DOC# ```
-versinfo()
+n: String
+print(n)

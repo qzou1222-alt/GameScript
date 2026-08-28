@@ -23,7 +23,8 @@ functions:dict[str,types.FunctionType] = {
     "String.upper": strupper,
     "String.lower": strlower,
     "String.length": strlen,
-    "String.contains": strcontains
+    "String.contains": strcontains,
+    "playscript": playscript
 }
 def find_assignment(line):
     in_string = False
@@ -87,6 +88,8 @@ def evaluate(expression: str):
     ):
         return expression[1:-1]
     else:
+        if expression=="?":
+            return UnknownType()
         if is_integer(expression, False):
             return int(expression)
         if is_float(expression):
@@ -200,8 +203,21 @@ def execute_line(line: str):
 
     if assignment != -1:
         name = line[:assignment].strip()
+        type = None
+        if ":" in name:
+            type=name[name.index(":")+1:].strip()
+            name=name[:name.index(":")].strip()
+            
         value = line[assignment + 1:].strip()
-
+        if type and not value:
+            value = "?"
+        if not value:
+            printerr(
+                f"Syntax Error: Expected variable value.\n"
+                f" in [line {ind}]\n"
+                f" {line}",
+                fatal=True
+            )            
         if not name:
             printerr(
                 f"Syntax Error: Expected variable name.\n"
@@ -213,7 +229,12 @@ def execute_line(line: str):
         
         variables[name] = evaluate(value)
         return
-
+    elif line.find(":")!=-1:
+        type=line[line.index(":")+1:].strip()
+        name=line[:line.index(":")].strip()
+        value = "?"
+        variables[name] = evaluate(value)
+        return
     # Normal expression / builtin call
     evaluate(line)
 

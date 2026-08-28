@@ -22,7 +22,7 @@
 				},
 				{
 					"name": "entity.name.function.gamescript",
-					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div)\\b"
+					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div|playscript)\\b"
 				},
 				{
 					"match": "\\b(String)\\.(join|repeat|upper|lower|contains|length)\\b",
@@ -35,15 +35,22 @@
 						}
 					}
 				},
+
 				{
 					"name": "entity.name.type.gamescript",
-					"match": "\\bString\\b"
+					"match": "\\b(String)\\b|\\?"
 				},
-
-
 				{
 					"name": "variable.gamescript",
 					"match": "\\b(NaN)\\b"
+				},
+				{
+				    "name": "variable.gamescript",
+				    "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*(?::\\s*[A-Za-z_?][A-Za-z0-9_?]*)?\\s*=)"
+				},
+				{
+				    "name": "variable.gamescript",
+				    "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=(?::\\s*[A-Za-z_?][A-Za-z0-9_?]*))"
 				},
 				{
 					"name": "invalid",
