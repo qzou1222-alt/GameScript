@@ -23,7 +23,7 @@
 
 				{
 					"name": "entity.name.function.gamescript",
-					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div|playscript)\\b"
+					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div|playscript|printfinish)\\b"
 				},
 				{
 					"match": "\\b(String)\\.(join|repeat|upper|lower|contains|length)\\b",
@@ -32,6 +32,57 @@
 							"name": "entity.name.type.gamescript"
 						},
 						"2": {
+							"name": "entity.name.function.gamescript"
+						}
+					}
+				},
+				{
+					"match": "\\b(FileSystem)\\.(read_file|open_folder|exists|folder_exists|file_exists|add_file_to_folder|write_to_file|append_to_file)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"2": {
+							"name": "entity.name.function.gamescript"
+						}
+					}
+				},
+
+				{
+					"match": "\\b(FileSystem)\\.(tempfolder)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"2": {
+							"name": "variable.gamescript"
+						}
+					}
+				},
+				{
+					"match": "\\b(FileSystem)\\.(File)\\.(store|exists|read|write|append)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"2": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"3": {
+							"name": "entity.name.function.gamescript"
+						}
+					}
+				},
+				{
+					"match": "\\b(FileSystem)\\.(Folder)\\.(exists|add_file|open)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"2": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"3": {
 							"name": "entity.name.function.gamescript"
 						}
 					}
@@ -48,8 +99,23 @@
 					}
 				},
 				{
+					"match": "\\b(FileSystem)\\.(File|Folder)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.directive.namespace.gamescript"
+						},
+						"2": {
+							"name": "entity.directive.namespace.gamescript"
+						}
+					}
+				},
+				{
 					"name": "entity.name.type.gamescript",
 					"match": "\\b(String|Integer|Boolean|Float|Type|Object)\\b|\\?"
+				},
+				{
+					"name": "entity.directive.namespace.gamescript",
+					"match": "\\b(FileSystem)\\b"
 				},
 				{
 					"name": "variable.gamescript",

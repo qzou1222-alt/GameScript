@@ -5,6 +5,8 @@ import sys
 import subprocess
 import pathlib
 import types
+import os
+import tempfile
 colorama.init()
 _GAME_SCRIPT_VERSION = "1.6.0"
 NaN=float("nan")
@@ -61,6 +63,33 @@ def is_integer(value:object, allow_stringfloat:bool=True) -> bool:
             except (TypeError, ValueError):
                 return False
         return False
+tempfolder=tempfile.gettempdir()
+def filewrite(file: str, string: str):
+    with open(file, "w") as fp:
+        fp.write(string)
+def fileread(file: str):
+    with open(file, "r") as fp:
+        string=fp.read()
+    return string
+def fileappend(file: str, string:str):
+    with open(file, "a") as fp:
+        fp.write(string)
+def fileexists(file: str) -> bool:
+    return pathlib.Path(file).exists()
+def folderexists(folder: str) -> bool:
+    return pathlib.Path(folder).is_dir() and pathlib.Path(folder).exists()
+def folderaddfile(folder: str, filename: str):
+    file=pathlib.Path(folder)/filename
+    with open(file, "w"):
+        return str(file)
+def fileorfolderexists(path: str) -> bool:
+    return fileexists(path) or folderexists(path)
+def folderopen(folder: str):
+    folderp=pathlib.Path(folder)
+    if not folderp.exists() or not folderp.is_dir():
+        return False
+    os.startfile(folder)
+    return True
 def is_float(value:object) -> bool:
     try:
         float(value)
@@ -154,10 +183,11 @@ class UnknownType:
     def __str__(self):
         return "?"
 class TypeStore:
-    def __init__(self, cls: str):
+    def __init__(self, cls: str, _type_name: str = "Class"):
         self.cls=cls
+        self._tn=_type_name
     def __str__(self):
-        return f"<Class> {self.cls}"
+        return f"<{self._tn}> {self.cls}"
 class Type:
     def __init__(self, obj):
         if isinstance(obj, (str,String)):

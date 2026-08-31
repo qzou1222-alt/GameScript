@@ -154,11 +154,40 @@ class GSProvider {
 
             return items;
         }
+        else if (before.endsWith("FileSystem.")) {
+            add("tempfolder", vscode.CompletionItemKind.Constant);
+            add("open_folder", vscode.CompletionItemKind.Method);
+            add("exists", vscode.CompletionItemKind.Method);
+            add("file_exists", vscode.CompletionItemKind.Method);
+            add("folder_exists", vscode.CompletionItemKind.Method);
+            add("add_file_to_folder", vscode.CompletionItemKind.Method);
+            add("write_to_file", vscode.CompletionItemKind.Method);
+            add("append_to_file", vscode.CompletionItemKind.Method);
+            add("read_file", vscode.CompletionItemKind.Method);
+            add("File", vscode.CompletionItemKind.Class)
+            add("Folder", vscode.CompletionItemKind.Class)
+            return items;
+        }
+        else if (before.endsWith("FileSystem.File.")){
+            add("read", vscode.CompletionItemKind.Method);
+            add("write", vscode.CompletionItemKind.Method);
+            add("store", vscode.CompletionItemKind.Method);
+            add("append", vscode.CompletionItemKind.Method);
+            add("exists", vscode.CompletionItemKind.Method);
+            return items;
+        }
+        else if (before.endsWith("FileSystem.Folder.")){
+            add("open", vscode.CompletionItemKind.Method);
+            add("add_file", vscode.CompletionItemKind.Method);
+            add("exists", vscode.CompletionItemKind.Method);
+            return items;
+        }
         else if (before.endsWith(".")){
             return []
         }
         // Normal mode
         add("print", vscode.CompletionItemKind.Function);
+        add("printfinish", vscode.CompletionItemKind.Function);
         add("printinfo", vscode.CompletionItemKind.Function);
         add("printerr", vscode.CompletionItemKind.Function);
         add("printwarn", vscode.CompletionItemKind.Function);
@@ -172,6 +201,7 @@ class GSProvider {
         add("mul", vscode.CompletionItemKind.Function);
         add("div", vscode.CompletionItemKind.Function);
 
+        add("FileSystem", vscode.CompletionItemKind.Class);
         add("Type", vscode.CompletionItemKind.Class);
         add("String", vscode.CompletionItemKind.Class);
         add("Integer", vscode.CompletionItemKind.Class);
@@ -681,7 +711,6 @@ class GSHoverProvider {
 
         const word =
             document.getText(wordRange);
-
         const md =
             new vscode.MarkdownString();
 
@@ -769,15 +798,98 @@ class GSHoverProvider {
             returns = "Boolean";
             doc = "Returns a boolean of object is instance of type.\n\n`Warning: Type.is_instance(true, Integer) is true, because Boolean inherits Integer.`";
         }
+        if (line.includes("FileSystem.tempfile") && word==="File") {
+            name = "FileSystem.tempfile";
+            type = "Variable";
+            vartype = "String"
+            varvaluename = "[Local Temporary File]"
+        }
+        if (line.includes("FileSystem.File") && word==="File") {
+            name = "FileSystem.File";
+            type = "NameSpace";
+            doc = "";
+        }
+        if (line.includes("FileSystem.File.read") && word==="read") {
+            name = "FileSystem.File.read";
+            type = "Function";
+            args = "file: String"
+            returns = "String"
+            doc = "Read the given file and returns a string.";
+        }
+        if (line.includes("FileSystem.File.write") && word==="write") {
+            name = "FileSystem.File.write";
+            type = "Function";
+            args = "file: String, string: String"
+            doc = "Write the given string to file.";
+        }
+        if (line.includes("FileSystem.File.store") && word==="store") {
+            name = "FileSystem.File.store";
+            type = "Function";
+            args = "file: String, string: String"
+            doc = "Store the given string to file. **Another API of FileSystem.File.write**.";
+        }
+        if (line.includes("FileSystem.File.exists") && word==="exists") {
+            name = "FileSystem.File.exists";
+            type = "Function";
+            args = "file: String"
+            returns = "Boolean"
+            doc = "Check the given file is exists.";
+        }
+        if (line.includes("FileSystem.File.append") && word==="append") {
+            name = "FileSystem.File.append";
+            type = "Function";
+            args = "file: String, string: String"
+            doc = "Append the given string to file.";
+        }
+        if (line.includes("FileSystem.Folder") && word==="Folder") {
+            name = "FileSystem.Folder";
+            type = "NameSpace";
+            doc = "";
+        }
+        if (line.includes("FileSystem.Folder.exists") && word==="exists") {
+            name = "FileSystem.Folder.exists";
+            type = "Function";
+            args = "folder: String"
+            returns = "Boolean"
+            doc = "Check the given folder is exists.";
+        }
+        if (line.includes("FileSystem.Folder.add_file") && word==="add_file") {
+            name = "FileSystem.Folder.add_file";
+            type = "Function";
+            args = "folder: String, filename: String"
+            returns = "String"
+            doc = "Create an empty file in the given folder. Returns a string of the file's path.";
+        }
+        if (line.includes("FileSystem.Folder.open")  && word==="open") {
+            name = "FileSystem.Folder.open";
+            type = "Function";
+            args = "folder: String"
+            returns = "String"
+            doc = "Open the given folder in File Explorer.";
+        }
+
+
+        if (word === "FileSystem") {
+            name = "FileSystem";
+            type = "NameSpace";
+            doc = ""
+        }
         if (word === "print") {
             name = "print";
             type = "Function";
             args =
-                '*values: Object, printtype: <"message","warning","error","information">';
+                '*values: Object, printtype: <"message","warning","error","information","successful">';
             doc =
                 "Print messages to terminal as the given printtype.";
         }
-
+        if (word === "printfinish") {
+            name = "printfinish";
+            type = "Function";
+            args =
+                'message: Object';
+            doc =
+                "Print messages to terminal as green successful text.";
+        }
         if (word === "printwarn") {
             name = "printwarn";
             type = "Function";
@@ -814,9 +926,9 @@ class GSHoverProvider {
         if (word === "printbash") {
             name = "printbash";
             type = "Function";
-            args = "*values: Object";
+            args = "message: Object";
             doc =
-                "Print messages to terminal as normal text.";
+                "Print message to terminal as normal text.";
         }
 
         if (word === "input") {
@@ -943,6 +1055,12 @@ class GSHoverProvider {
                 `(${type}) ${name}${inherits}`,
                 "gamescript"
             );
+        }
+        else if (type === "NameSpace") {
+            md.appendCodeblock(
+                `(${type}) ${name}`,
+                "gamescript"
+            );            
         }
         else {
             md.appendCodeblock(

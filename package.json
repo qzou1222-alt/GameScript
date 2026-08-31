@@ -2,7 +2,7 @@
   "name": "gamescript",
   "displayName": "GameScript Extension for VS Code",
   "description": "Language support for GameScript (.gs) in Visual Studio Code.",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "publisher": "VictorZou",
   "author": {
     "name": "Victor Zou"
@@ -31,6 +31,13 @@
             "title": "Run GameScript"
         }
     ],
+    "keybindings": [
+        {
+            "command": "gamescript.run",
+            "key": "f6",
+            "when": "editorLangId == gamescript"
+        }
+    ],
     "menus": {
         "editor/title": [
             {
@@ -38,7 +45,14 @@
                 "when": "editorLangId == gs || editorLangId == gamescript",
                 "group": "2_run@1"
             }
-        ]
+        ],
+        "explorer/context": [
+        {
+            "command": "gamescript.run",
+            "when": "resourceLangId == gamescript",
+            "group": "2_run@1"
+        }
+    ]
     },   
 
     "languages": [{
@@ -63,6 +77,12 @@
             "scope": "keyword.directive.doc.gamescript",
             "settings": {
               "foreground": "#57ffe3"
+            }
+          },
+          {
+            "scope": "entity.directive.namespace.gamescript",
+            "settings": {
+              "foreground": "#d1ffd1"
             }
           },
           {

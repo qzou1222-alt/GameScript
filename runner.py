@@ -2,7 +2,7 @@ import sys
 import types
 from core import *
 from core import _BoolHumanRead, _NoneType
-variables = {"NaN": float("nan")}
+variables = {"NaN": float("nan"), "FileSystem.tempfolder": tempfolder}
 ind = 0
 functions:dict[str,types.FunctionType] = {
     "print": print,
@@ -10,6 +10,7 @@ functions:dict[str,types.FunctionType] = {
     "printwarn": printwarn,
     "printinfo": printinfo,
     "printbash": printbash,
+    "printfinish": printfinish,
     "versinfo": versinfo,
     "input": input,
     "is_integer": is_integer,
@@ -28,7 +29,23 @@ functions:dict[str,types.FunctionType] = {
     "Type": Type,
     "Type.is_instance": typeisinstance,
     "Boolean": Boolean,
-    "String": String
+    "String": String,
+    "FileSystem.open_folder": folderopen,
+    "FileSystem.exists": fileorfolderexists,
+    "FileSystem.file_exists": fileexists,
+    "FileSystem.folder_exists": folderexists,
+    "FileSystem.add_file_to_folder": folderaddfile,
+    "FileSystem.write_to_file": filewrite,
+    "FileSystem.read_file": fileread,
+    "FileSystem.append_to_file": fileappend,
+    "FileSystem.Folder.open": folderopen,
+    "FileSystem.Folder.exists": folderexists,
+    "FileSystem.Folder.add_file": folderaddfile,
+    "FileSystem.File.exists": fileexists,
+    "FileSystem.File.write": filewrite,
+    "FileSystem.File.store": filewrite,
+    "FileSystem.File.read": fileread,
+    "FileSystem.File.append": fileappend
 }
 def find_colon(expression: str):
     depth = 0
@@ -114,6 +131,7 @@ def get_attribute(obj, attribute):
             match attribute:
                 case _:
                     pass
+
     return UnknownType()
 def find_assignment(line):
     in_string = False
@@ -175,8 +193,13 @@ def evaluate(expression: str):
         and expression[0] == '"'
         and expression[-1] == '"'
     ):
+        expression.replace("\\n","\n")
         return expression[1:-1]
     else:
+        if expression in variables:
+            return variables[expression]
+        if expression in functions:
+            return Function(functions[expression])
         if expression.endswith(")"):
             open_index = expression.find("(")
             if open_index != -1:
@@ -217,6 +240,8 @@ def evaluate(expression: str):
             return UnknownType()
         if expression in {"String", "Integer", "Float", "Boolean", "Type", "Object"}:
             return TypeStore(expression)
+        if expression in {"FileSystem", "FileSystem.File", "FileSystem.Folder"}:
+            return TypeStore(expression, "Namespace")
         if is_integer(expression, False):
             return int(expression)
         if is_float(expression):
@@ -227,10 +252,7 @@ def evaluate(expression: str):
         if expression == "none":
             return _NoneType()
     # Variable
-    if expression in variables:
-        return variables[expression]
-    if expression in functions:
-        return Function(functions[expression])
+
     # Built-in function call
 
     printerr(f"Expression Error: Invalid expression {expression}", fatal=True)

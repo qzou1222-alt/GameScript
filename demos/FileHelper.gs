@@ -1,0 +1,7 @@
+filename: String = input("What's the file name? ")
+fileextension: String = input("What's the file extension? ")
+folder: String = input("Where do you want to put? ")
+string: String = input("What's the text you want to write in this file?")
+file = String.join(folder, "/",filename, fileextension)
+FileSystem.File.write(file, string)
+printinfo(String.join("File successfully saved as ", file, "!"))
