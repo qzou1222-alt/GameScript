@@ -24,8 +24,97 @@ functions:dict[str,types.FunctionType] = {
     "String.lower": strlower,
     "String.length": strlen,
     "String.contains": strcontains,
-    "playscript": playscript
+    "playscript": playscript,
+    "Type": Type,
+    "Type.is_instance": typeisinstance,
+    "Boolean": Boolean,
+    "String": String
 }
+def find_colon(expression: str):
+    depth = 0
+    in_string = False
+
+    for i, ch in enumerate(expression):
+        if ch == '"':
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == ":" and depth == 0:
+            return i
+
+    return -1
+def find_attribute_dot(expression: str):
+    depth = 0
+    in_string = False
+
+    for i, ch in enumerate(expression):
+        if ch == '"':
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "." and depth == 0:
+            return i
+
+    return -1
+def find_matching_bracket(expression: str, opening_index: int):
+    depth = 0
+    in_string = False
+
+    for i in range(opening_index, len(expression)):
+        ch = expression[i]
+
+        if ch == '"':
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+
+            if depth == 0:
+                return i
+
+    return -1
+def get_attribute(obj, attribute):
+    obj_type = Type(obj)
+    cls=obj_type.type.cls
+    match cls:
+        case "Boolean":
+            match attribute:
+                case _:
+                    pass
+
+        case "String":
+            match attribute:
+                case "length":
+                    return String(obj)._get_length()
+                case "as_upper":
+                    return strupper(String(obj).string)
+                case "as_lower":
+                    return strlower(String(obj).string)
+        case "Integer":
+            match attribute:
+                case _:
+                    pass
+    return UnknownType()
 def find_assignment(line):
     in_string = False
     depth = 0
@@ -88,8 +177,46 @@ def evaluate(expression: str):
     ):
         return expression[1:-1]
     else:
+        if expression.endswith(")"):
+            open_index = expression.find("(")
+            if open_index != -1:
+                name = expression[:open_index].strip()
+                # Make sure this really looks like a function call
+                if name in functions:
+                    content = expression[
+                        open_index + 1:-1
+                    ]
+                    values, kwargs = parse_args(content)
+                    function = functions[name]
+                    try:
+                        result = function(
+                        *values,
+                        **kwargs
+                        )
+    
+                        if isinstance(result, bool):
+                            return _BoolHumanRead(result)
+                        if result is None:
+                            return _NoneType()
+                        return result
+                    except TypeError as error:
+                        printerr(
+                            f"Type Error: {error}",
+                            fatal=True
+                        )
+        dot = find_attribute_dot(expression)
+
+        if dot != -1:
+            obj_expression = expression[:dot]
+            attribute = expression[dot + 1:]
+
+            obj = evaluate(obj_expression)
+
+            return get_attribute(obj, attribute)
         if expression=="?":
             return UnknownType()
+        if expression in {"String", "Integer", "Float", "Boolean", "Type", "Object"}:
+            return TypeStore(expression)
         if is_integer(expression, False):
             return int(expression)
         if is_float(expression):
@@ -102,35 +229,11 @@ def evaluate(expression: str):
     # Variable
     if expression in variables:
         return variables[expression]
+    if expression in functions:
+        return Function(functions[expression])
     # Built-in function call
-    if expression.endswith(")"):
-        open_index = expression.find("(")
-        if open_index != -1:
-            name = expression[:open_index].strip()
-            # Make sure this really looks like a function call
-            if name in functions:
-                content = expression[
-                    open_index + 1:-1
-                ]
-                values, kwargs = parse_args(content)
-                function = functions[name]
-                try:
-                    result = function(
-                    *values,
-                    **kwargs
-                    )
 
-                    if isinstance(result, bool):
-                        return _BoolHumanRead(result)
-                    if result is None:
-                        return _NoneType()
-                    return result
-                except TypeError as error:
-                    printerr(
-                        f"Type Error: {error}",
-                        fatal=True
-                    )
-    printerr(f"Expression Error: Invalid expression {expression}")
+    printerr(f"Expression Error: Invalid expression {expression}", fatal=True)
 def checkBrackets(line):
     stack = []
     pairs = {
@@ -204,9 +307,10 @@ def execute_line(line: str):
     if assignment != -1:
         name = line[:assignment].strip()
         type = None
-        if ":" in name:
-            type=name[name.index(":")+1:].strip()
-            name=name[:name.index(":")].strip()
+        colon=find_colon(name)
+        if colon!=-1:
+            type=name[colon+1:].strip()
+            name=name[:colon].strip()
             
         value = line[assignment + 1:].strip()
         if type and not value:
@@ -229,7 +333,7 @@ def execute_line(line: str):
         
         variables[name] = evaluate(value)
         return
-    elif line.find(":")!=-1:
+    elif find_colon(line) != -1:
         type=line[line.index(":")+1:].strip()
         name=line[:line.index(":")].strip()
         value = "?"

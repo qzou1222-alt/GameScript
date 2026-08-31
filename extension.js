@@ -149,7 +149,14 @@ class GSProvider {
 
             return items;
         }
+        else if (before.endsWith("Type.")) {
+            add("is_instance", vscode.CompletionItemKind.Method);
 
+            return items;
+        }
+        else if (before.endsWith(".")){
+            return []
+        }
         // Normal mode
         add("print", vscode.CompletionItemKind.Function);
         add("printinfo", vscode.CompletionItemKind.Function);
@@ -165,7 +172,12 @@ class GSProvider {
         add("mul", vscode.CompletionItemKind.Function);
         add("div", vscode.CompletionItemKind.Function);
 
+        add("Type", vscode.CompletionItemKind.Class);
         add("String", vscode.CompletionItemKind.Class);
+        add("Integer", vscode.CompletionItemKind.Class);
+        add("Float", vscode.CompletionItemKind.Class);
+        add("Boolean", vscode.CompletionItemKind.Class);
+        add("Object", vscode.CompletionItemKind.Class);
         add("true", vscode.CompletionItemKind.Keyword);
         add("false", vscode.CompletionItemKind.Keyword);
         add("none", vscode.CompletionItemKind.Keyword);
@@ -246,7 +258,7 @@ function checkGS(doc, collection) {
                     value
                 });
             }
-            if ((value.startsWith("\"") && value.endsWith("\"") && type!=="String") || (!value.startsWith("\"") && !value.endsWith("\"") && type==="String" && value!=="?" && value!=="none")){
+            if ((value.startsWith("\"") && value.endsWith("\"") && type!=="String" && value!=="") || (!value.startsWith("\"") && !value.endsWith("\"") && type==="String" && value!=="?" && value!=="none")){
                 if (!ignoreTypeCheckingUncorrectValueTypeWarning){
                     diagnostics.push(
                         new vscode.Diagnostic(
@@ -750,7 +762,13 @@ class GSHoverProvider {
             returns = "Integer";
             doc = "Get the length of the string.";
         }
-
+        if (line.includes("Type.is_instance")) {
+            name = "Type.is_instance";
+            type = "Function";
+            args = "obj: Object, type: Type";
+            returns = "Boolean";
+            doc = "Returns a boolean of object is instance of type.\n\n`Warning: Type.is_instance(true, Integer) is true, because Boolean inherits Integer.`";
+        }
         if (word === "print") {
             name = "print";
             type = "Function";
@@ -877,7 +895,33 @@ class GSHoverProvider {
             type = "Class";
             doc = "";
         }
-
+        if (word === "Type") {
+            name = "Type";
+            type = "Class";
+            doc = "";
+        }
+        if (word === "Integer") {
+            name = "Integer";
+            type = "Class";
+            doc = "";
+        }
+        if (word === "Float") {
+            name = "Float";
+            type = "Class";
+            doc = "";
+        }
+        if (word === "Boolean") {
+            name = "Boolean";
+            type = "Class";
+            doc = "";
+            inherits = " < Integer < Object"
+        }
+        if (word === "Object") {
+            name = "Object";
+            type = "Class";
+            doc = "";
+            inherits = ""
+        }
         if (!name || !type) {
             return;
         }
@@ -914,7 +958,10 @@ class GSHoverProvider {
         );
     }
 }
-const tokenTypes = ["variable"];
+const tokenTypes = [
+    "variable",
+    "property"
+];
 const tokenModifiers = [];
 
 const semanticTokensChanged =
@@ -930,6 +977,11 @@ class GSSemanticTokensProvider {
     onDidChangeSemanticTokens = semanticTokensChanged.event;
 
     provideDocumentSemanticTokens(document) {
+        const propertyNames = new Set([
+        "length",
+        "as_upper",
+        "as_lower"
+        ]);
         const builder =
             new vscode.SemanticTokensBuilder(legend);
 
@@ -942,32 +994,44 @@ class GSSemanticTokensProvider {
             new Set(
                 variables.map(v => v.name)
             );
-
         for (let i = 0; i < document.lineCount; i++) {
             const line =
                 document.lineAt(i).text;
-
-            for (
-                const match of line.matchAll(
-                    /\b[A-Za-z_][A-Za-z0-9_]*\b/g
-                )
-            ) {
+            for (const match of line.matchAll(
+                /\b[A-Za-z_][A-Za-z0-9_]*\b/g
+            )) {
                 const word = match[0];
-
+            
                 if (!variableNames.has(word)) {
                     continue;
                 }
-
+            
                 builder.push(
                     i,
                     match.index,
                     word.length,
-                    0,
+                    0, // variable
                     0
                 );
             }
-        }
+            for (const match of line.matchAll(
+                /\.([A-Za-z_][A-Za-z0-9_]*)\b/g
+            )) {
+                const property = match[1];
+                if (!propertyNames.has(property)) {
+                    continue;
+                }   
+                builder.push(
+                    i,
+                    match.index + 1,
+                    property.length,
+                    1,
+                    0
+                );
+                
 
+            }
+    }
         return builder.build();
     }
 }

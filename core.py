@@ -4,12 +4,13 @@ import colorama
 import sys
 import subprocess
 import pathlib
+import types
 colorama.init()
-_GAME_SCRIPT_VERSION = "1.5.0"
+_GAME_SCRIPT_VERSION = "1.6.0"
 NaN=float("nan")
 def print(
         *values: object,
-        printtype: typing.Literal["message","warning","error","info"] = "message"
+        printtype: typing.Literal["message","warning","error","info", "scuccessful"] = "message"
           ):
     match printtype:
         
@@ -22,10 +23,14 @@ def print(
             builtins.print(colorama.Fore.RED + " ".join(map(str,values)) + colorama.Fore.RESET)
         case "info":
             builtins.print(colorama.Fore.BLUE + " ".join(map(str,values)) + colorama.Fore.RESET)
+        case "scuccessful":
+            builtins.print(colorama.Fore.GREEN + " ".join(map(str,values)) + colorama.Fore.RESET)
 def input(prompt: str = "") -> str:
     return builtins.input(prompt)
-def printbash(*values:object):
-    builtins.print(*values)
+def printbash(message: object):
+    print(message)
+def printfinish(message:object):
+    print(message,printtype="scuccessful")
 def printerr(message:object, fatal: bool = False):
     print(message,printtype="error")
     if fatal:
@@ -101,6 +106,7 @@ def strlen(string: str):
     return len(string)
 def strcontains(string: str, contains: str):
     return contains in string
+
 def playscript(file: str):
     subprocess.run(
         [
@@ -109,22 +115,97 @@ def playscript(file: str):
             file
         ]
     )
-class _BoolHumanRead:
+def typeisinstance(obj: object, type: "TypeStore"):
+    match type.cls:
+        case "Integer":
+            return isinstance(obj, int)
+        case "Float":
+            return isinstance(obj, float)
+        case "String":
+            return isinstance(obj, str)
+        case "Type":
+            return isinstance(obj, (Type,TypeStore))
+        case "NoneType":
+            return isinstance(obj, _NoneType)
+        case "Boolean":
+            return isinstance(obj, _BoolHumanRead)
+        case "Unknown":
+            return isinstance(obj, UnknownType)
+        case "Function":
+            return isinstance(obj, Function)
+        case _:
+            return False
+class _BoolHumanRead(int):
     def __init__(self, b: bool):
         self.b=b
     def __str__(self):
         return "true" if self.b else "false"
+    def __bool__(self):
+        return self.b
 class _NoneType:
     def __str__(self):
         return "none"
+    def __bool__(self):
+        return False
 class Object:
     def _to_string(self):
         return "<Object instance>"
-class String:
-    def __init__(self, from_: Object):
-        self.string=from_._to_string()
-    def _to_string(self):
-        return self.string
 class UnknownType:
     def __str__(self):
         return "?"
+class TypeStore:
+    def __init__(self, cls: str):
+        self.cls=cls
+    def __str__(self):
+        return f"<Class> {self.cls}"
+class Type:
+    def __init__(self, obj):
+        if isinstance(obj, (str,String)):
+            self.type = TypeStore("String")
+        elif isinstance(obj, _BoolHumanRead):
+            self.type = TypeStore("Boolean")
+        elif isinstance(obj, int):
+            self.type = TypeStore("Integer")
+
+        elif isinstance(obj, float):
+            self.type = TypeStore("Float")
+
+        elif isinstance(obj, UnknownType):
+            self.type = TypeStore("Unknown")
+
+        elif isinstance(obj, _NoneType):
+            self.type = TypeStore("NoneType")
+        
+        elif isinstance(obj, (Type,TypeStore)):
+            self.type = TypeStore("Type")
+        elif isinstance(obj, Function):
+            self.type = TypeStore("Function")
+        else:
+            self.type = TypeStore("Invalid")
+
+    def __str__(self):
+        return str(self.type)
+class Function:
+    def __init__(self, func: types.FunctionType):
+        self.func=func
+    def __str__(self):
+        return f"<Function> {self.func.__name__}"
+class Boolean:
+    def __init__(self, obj: object):
+        self.boolean= _BoolHumanRead(bool(obj))
+    def __str__(self):
+        return str(self.boolean)
+class String:
+    def __init__(self, obj:object):
+        self.string=str(obj)
+    def remove(self, char: "String", change_itself: bool = True):
+        string=self.string.replace(char.string, "")
+        if change_itself:
+            self.string=string
+        return string
+    def _get_length(self):
+        return len(self.string)
+    def _to_string(self):
+        return self.string
+    def __str__(self):
+        return self._to_string()

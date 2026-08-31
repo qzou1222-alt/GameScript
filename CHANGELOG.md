@@ -8,33 +8,46 @@ For each release, the changelog describes what was added, changed, fixed, or rem
 
 At the end of this file, the release history is provided with links to previous releases.
 
-## 1.5.0 - 2026-08-27
+## 1.6.0 - 2026-08-27
 
-Variable Update
+Class & Attribute Update
 
 ### Runtime
 
-- Added special symbol "?".
-- Added variable check.
+- Improved property evaluation.
+- Added string properties:
+    - length
+    - as_upper
+    - as_lower
+- Added internal length getter for String.
+- Added playscript().
 
 ### Editor
 
-- Added user difined variables to CompletionItems.
-- Added highlight for "?".
-- Added dynamic highlight for user defined variables.
-- Added hover support for user defined variables.
-- Added better type checking.
+- Added dynamic semantic highlighting for variables.
+- Added dynamic semantic highlighting for properties.
+- Added highlighting for:
+    - .length
+    - .as_upper
+    - .as_lower
+- Improved property highlighting without requiring every property to be hard-coded in the TextMate grammar.
 
-### Diagnostics
+### Parser
 
-- Added variable incorrect value type warning.
+- Improved nested expression and property parsing.
+- Added support for finding attribute dots outside parentheses and strings.
+- Added support for finding matching parentheses when evaluating expressions.
 
-### Configuration
+### Demos
 
-- Added configuration "ignoreTypeCheckingUncorrectValueTypeWarning".
+- Added demos folder.
+- Added StringData.gs demo.
+- Added StringRepeater.gs demo.
+- Added NumberTest.gs demo.
 
 ## Releases
 
+- [1.6.0](https://github.com/qzou1222-alt/GameScript/blob/v1.6.0/CHANGELOG.md)
 - [1.5.0](https://github.com/qzou1222-alt/GameScript/blob/v1.5.0/CHANGELOG.md)
 - [1.4.0](https://github.com/qzou1222-alt/GameScript/blob/v1.4.0/CHANGELOG.md)
 - [1.3.0](https://github.com/qzou1222-alt/GameScript/blob/v1.3.0/CHANGELOG.md)

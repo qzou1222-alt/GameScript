@@ -20,6 +20,7 @@
 					"name": "keyword.gamescript",
 					"match": "\\b(true|false|none)\\b"
 				},
+
 				{
 					"name": "entity.name.function.gamescript",
 					"match": "\\b(print|printbash|printerr|printwarn|versinfo|printinfo|input|is_integer|is_float|sum|sub|mul|div|playscript)\\b"
@@ -35,10 +36,20 @@
 						}
 					}
 				},
-
+				{
+					"match": "\\b(Type)\\.(is_instance)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.name.type.gamescript"
+						},
+						"2": {
+							"name": "entity.name.function.gamescript"
+						}
+					}
+				},
 				{
 					"name": "entity.name.type.gamescript",
-					"match": "\\b(String)\\b|\\?"
+					"match": "\\b(String|Integer|Boolean|Float|Type|Object)\\b|\\?"
 				},
 				{
 					"name": "variable.gamescript",
